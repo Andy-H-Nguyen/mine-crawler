@@ -4,6 +4,7 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+		<title></title>
 
 		<style>
 		  body {
@@ -12,29 +13,16 @@
 		    margin: 0px;
 		  }
 
-		  @font-face {
-		  	font-family: 'Prstart';
-		  	src: url('assets/fonts/prstart.ttf');
-		  }
-
-		  .fontPreload {
-		  	font-family: Prstart;
-		  	position:absolute;
-		  	left:-100px;
-		  }
-
 	  </style>
 	</head>
 
 	<body>
-		<div class="fontPreload">.</div>
-		<script type="text/javascript" src="js/phaser.min.js"></script>
+		<script type="text/javascript" src="js/phaser.js"></script>
 		<script type="text/javascript" src="js/states/Boot.js"></script>
 		<script type="text/javascript" src="js/states/Preload.js"></script>
 		<script type="text/javascript" src="js/states/Game.js"></script>
 		<script type="text/javascript" src="js/prefabs/Board.js"></script>
-		<script type="text/javascript" src="js/prefabs/Item.js"></script>
-		<script type="text/javascript" src="js/prefabs/Enemy.js"></script>
+		<script type="text/javascript" src="js/prefabs/Unit.js"></script>
 		<script type="text/javascript" src="js/main.js"></script>
 	</body>
 </html>

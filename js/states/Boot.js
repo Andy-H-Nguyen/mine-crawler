@@ -1,7 +1,7 @@
-var DunCrawl = DunCrawl || {};
+var HexGame = HexGame || {};
 
 //setting game configuration and loading the assets for the loading screen
-DunCrawl.BootState = {
+HexGame.BootState = {
   init: function() {
     //loading screen will have a white background
     this.game.stage.backgroundColor = '#fff';
