@@ -1,149 +1,117 @@
-var HexGame = HexGame || {};
+var DunCrawl = DunCrawl || {};
 
-HexGame.GameState = {
+DunCrawl.GameState = {
 
-  init: function() {
+  init: function(data) {
+    //board
+    this.ROWS = 8;
+    this.COLS = 6;
+    this.TILE_SIZE = 60;
 
-    this.TILE_W = 56;
-    this.TILE_H = 64;
-    this.MARGIN_X = 30;
-    this.MARGIN_Y = 5;
+    data = data || {};
+    this.currentLevel = data.currentLevel || 1;
+
+    this.playerStats = data.playerStats || {
+      health: 25,
+      attack: 2,
+      defense: 1,
+      gold: 0,
+      hasKey: false
+    };
   },
   create: function() {
-    this.map = JSON.parse(this.game.cache.getText('map'));
-    this.board = new HexGame.Board(this, this.map.grid);
-    this.places = this.add.group();
+    //tiles groups
+    this.backgroundTiles = this.add.group();
 
-    this.playerUnits = this.add.group();
-    this.enemyUnits = this.add.group();
+    //map elements
+    this.mapElements = this.add.group();
 
-    this.initUnits();
-    this.initPlaces();
+    //fog of war
+    this.darkTiles = this.add.group();
 
-    //run turn
-    this.newTurn();
+    //load level data
+    this.levelData = JSON.parse(this.game.cache.getText('gameBaseData'));
+
+    //board
+    this.board = new DunCrawl.Board(this, {
+      rows: this.ROWS,
+      cols: this.COLS,
+      tileSize: this.TILE_SIZE,
+      levelData: this.levelData
+    });
+
+    //initiate level
+    this.board.initLevel();
+
+    //initiate our user interface
+    this.initGui();
+
   },
-  initUnits: function() {
-    //load player units
-    this.playerUnitsData = JSON.parse(this.game.cache.getText('playerUnits'));
-
-    var unit;
-    this.playerUnitsData.forEach(function(unitData){
-      unit = new HexGame.Unit(this, unitData);
-
-      //unit belongs to the player
-      unit.isPlayer = true;
-
-      this.playerUnits.add(unit);
-    }, this);
-
-    //load player units
-    this.enemyUnitsData = JSON.parse(this.game.cache.getText('enemyUnits'));
-
-    this.enemyUnitsData.forEach(function(unitData){
-      unit = new HexGame.Unit(this, unitData);
-      this.enemyUnits.add(unit);
-    }, this);
+  gameOver: function() {
+    this.game.state.start('Game');
   },
-  clearSelection: function() {
-    this.board.setAll('alpha', 1);
-
-    //remove attached events from tiles
-    this.board.forEach(function(tile){
-      tile.events.onInputDown.removeAll();
-    }, this);
+  nextLevel: function() {
+    this.game.state.start('Game', true, false, {currentLevel: this.currentLevel + 1, playerStats: this.playerStats});
   },
-  newTurn: function(){
-    //create an array to keep all alive units
-    this.allUnits = [];
+  initGui: function() {
+    //draw blue panel
+    var y = this.TILE_SIZE * this.ROWS;
+    var bitmapRect = this.add.bitmapData(this.game.width, this.game.height - y);
+    bitmapRect.ctx.fillStyle = '#000058';
+    bitmapRect.ctx.fillRect(0, 0, this.game.width, this.game.height - y);
 
-    this.playerUnits.forEachAlive(function(unit){
-      this.allUnits.push(unit);
-    }, this);
+    //sprite for the panel
+    this.panel = this.add.sprite(0, y, bitmapRect);
 
-    this.enemyUnits.forEachAlive(function(unit){
-      this.allUnits.push(unit);
-    }, this);
+    var style = {
+      font: '16px Prstart',
+      fill: '#fff',
+      align: 'left'
+    };
 
-    //randomize array
-    this.shuffle(this.allUnits);
+    //health
+    this.healthIcon = this.add.sprite(this.game.width - 110, y -10 + this.TILE_SIZE/2, 'heart');
+    this.healthLabel = this.add.text(this.game.width - 70, y -10 + this.TILE_SIZE/2 + 5, '', style);
 
-    //keep track of the index of the current moving unit
-    this.currUnitIndex = 0;
+    //attack
+    this.attackIcon = this.add.sprite(this.game.width - 110, y -10 + 2 * this.TILE_SIZE/2, 'attack');
+    this.attackLabel = this.add.text(this.game.width - 70, y -10 + 2 * this.TILE_SIZE/2 + 5, '', style);
 
-    //prepare the next unit
-    this.prepareNextUnit();
+    //defense
+    this.defenseIcon = this.add.sprite(this.game.width - 110, y -10 + 3 * this.TILE_SIZE/2, 'defense');
+    this.defenseLabel = this.add.text(this.game.width - 70, y -10 + 3 * this.TILE_SIZE/2 + 5, '', style);
+
+    //gold
+    this.goldIcon = this.add.sprite(this.game.width - 110, y -10 + 4 * this.TILE_SIZE/2, 'gold');
+    this.goldLabel = this.add.text(this.game.width - 70, y -10 + 4 * this.TILE_SIZE/2 + 5, '', style);
+
+    //character image
+    this.charImage = this.add.sprite(30, y + 16, 'profile');
+
+    //level text
+    style = {
+      font: '10px Prstart',
+      fill: '#fff',
+      align: 'left'
+    };
+    this.levelLabel = this.add.text(45, this.game.height - this.TILE_SIZE/2, '', style);
+
+    //key
+    this.keyIcon = this.add.sprite(this.game.width - 180, y -10 + this.TILE_SIZE/2, 'key');
+    this.keyIcon.scale.setTo(0.6);
+
+    this.refreshStats();
   },
-  //shuffle array method from http://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array-in-javascript)
-  shuffle: function(array) {
-    var counter = array.length, temp, index;
+  refreshStats: function() {
+    this.healthLabel.text = Math.ceil(this.playerStats.health);
+    this.attackLabel.text = Math.ceil(this.playerStats.attack);
+    this.defenseLabel.text = Math.ceil(this.playerStats.defense);
+    this.goldLabel.text = Math.ceil(this.playerStats.gold);
 
-    // While there are elements in the array
-    while (counter > 0) {
-        // Pick a random index
-        index = Math.floor(Math.random() * counter);
+    this.levelLabel.text = 'Floor ' + this.currentLevel;
 
-        // Decrease counter by 1
-        counter--;
-
-        // And swap the last element with it
-        temp = array[counter];
-        array[counter] = array[index];
-        array[index] = temp;
-    }
-
-    return array;
-  },
-  prepareNextUnit: function(){
-    //if there are units to move
-    if(this.currUnitIndex < this.allUnits.length) {
-      //grab unit
-      var unit = this.allUnits[this.currUnitIndex];
-
-      this.currUnitIndex++;
-
-      if(unit.alive) {
-        unit.playTurn();
-      }
-      else {
-        this.prepareNextUnit();
-      }
-    }
-    //do new turn
-    else {
-      this.newTurn();
-    }
-  },
-  initPlaces: function(){
-    //player home base
-    var pos = this.board.getXYFromRowCol(this.map.playerBase.row, this.map.playerBase.col);
-    this.playerBase = new Phaser.Sprite(this.game, pos.x, pos.y, this.map.playerBase.asset);
-    this.playerBase.anchor.setTo(0.5);
-    this.playerBase.row = this.map.playerBase.row;
-    this.playerBase.col = this.map.playerBase.col;
-    this.places.add(this.playerBase);
-
-    //enemy home base
-    var pos = this.board.getXYFromRowCol(this.map.enemyBase.row, this.map.enemyBase.col);
-    this.enemyBase = new Phaser.Sprite(this.game, pos.x, pos.y, this.map.enemyBase.asset);
-    this.enemyBase.anchor.setTo(0.5);
-    this.enemyBase.row = this.map.enemyBase.row;
-    this.enemyBase.col = this.map.enemyBase.col;
-    this.places.add(this.enemyBase);
-  },
-  checkGameEnd: function() {
-    var unit = this.allUnits[this.currUnitIndex - 1];
-
-    //check if player won
-    if(unit.isPlayer) {
-      if(unit.row === this.enemyBase.row && unit.col === this.enemyBase.col) {
-        console.log('you won!');
-      }
-    }
-    else {
-      if(unit.row === this.playerBase.row && unit.col === this.playerBase.col) {
-        console.log('you lost!');
-      }
-    }
+    this.keyIcon.visible = this.playerStats.hasKey;
   }
+
+
 };

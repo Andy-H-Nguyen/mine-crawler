@@ -1,7 +1,7 @@
-var HexGame = HexGame || {};
+var DunCrawl = DunCrawl || {};
 
 //loading the game assets
-HexGame.PreloadState = {
+DunCrawl.PreloadState = {
   preload: function() {
     //show loading screen
     this.preloadBar = this.add.sprite(this.game.world.centerX, this.game.world.centerY, 'bar');
@@ -9,25 +9,30 @@ HexGame.PreloadState = {
     this.preloadBar.scale.setTo(100, 1);
     this.load.setPreloadSprite(this.preloadBar);
 
-    //terrains
-    this.load.image('grass', 'assets/images/grass2.png');
-    this.load.image('grasstrees', 'assets/images/grass3.png');
-    this.load.image('grasstrees2', 'assets/images/grass4.png');
-    this.load.image('rocks', 'assets/images/rocks.png');
-    this.load.image('water', 'assets/images/water.png');
-    this.load.image('black', 'assets/images/black.png');
-    this.load.image('sacredWarrior', 'assets/images/leopard-warrior.png');
-    this.load.image('warrior', 'assets/images/warrior.png');
-    this.load.image('wolf', 'assets/images/wolf.png');
-    this.load.image('orc', 'assets/images/orc.png');
-    this.load.image('ogre', 'assets/images/ogre.png');
-    this.load.image('house', 'assets/images/house-1.png');
-    this.load.image('darkTemple', 'assets/images/dark-temple.png');
+    //images
+    this.load.image('rockTile', 'assets/images/rock-land3.png');
+    this.load.image('darkTile', 'assets/images/darkTile.png');
+    this.load.image('cherry', 'assets/images/potion.png');
+    this.load.image('sword', 'assets/images/battlehammer.png');
+    this.load.image('shield', 'assets/images/shield.png');
+    this.load.image('chest', 'assets/images/chest-gold.png');
+    this.load.image('heart', 'assets/images/heart.png');
+    this.load.image('attack', 'assets/images/attack.png');
+    this.load.image('defense', 'assets/images/defense.png');
+    this.load.image('gold', 'assets/images/gold.png');
+    this.load.image('profile', 'assets/images/profile.png');
+    this.load.image('start', 'assets/images/start.png');
+    this.load.image('exit', 'assets/images/exit.png');
+    this.load.image('key', 'assets/images/key green.png');
 
-    //data files
-    this.load.text('map', 'assets/data/map.json');
-    this.load.text('playerUnits', 'assets/data/playerUnits.json');
-    this.load.text('enemyUnits', 'assets/data/enemyUnits.json');
+    this.load.image('snake', 'assets/images/desert-snake.png');
+    this.load.image('skeleton', 'assets/images/swordskeleton.png');
+    this.load.image('mummy', 'assets/images/mummyjewel.png');
+    this.load.image('demon', 'assets/images/demon.png');
+    this.load.image('orc', 'assets/images/orc.png');
+
+    //data file
+    this.load.text('gameBaseData', 'assets/data/gameBaseData.json');
 
   },
   create: function() {

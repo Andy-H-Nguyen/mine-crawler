@@ -1,9 +1,9 @@
-var HexGame = HexGame || {};
+var DunCrawl = DunCrawl || {};
 
-HexGame.game = new Phaser.Game(640, 360, Phaser.AUTO);
+DunCrawl.game = new Phaser.Game(360, 640, Phaser.AUTO);
 
-HexGame.game.state.add('Boot', HexGame.BootState);
-HexGame.game.state.add('Preload', HexGame.PreloadState);
-HexGame.game.state.add('Game', HexGame.GameState);
+DunCrawl.game.state.add('Boot', DunCrawl.BootState);
+DunCrawl.game.state.add('Preload', DunCrawl.PreloadState);
+DunCrawl.game.state.add('Game', DunCrawl.GameState);
 
-HexGame.game.state.start('Boot');
+DunCrawl.game.state.start('Boot');
